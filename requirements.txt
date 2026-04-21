@@ -1,0 +1,9 @@
+tavily-python        # web search
+rank-bm25            # BM25 ranking
+groq                 # LLM calls
+tiktoken             # token counting for chunk evaluation
+httpx                # async HTTP requests
+pydantic             # mission schema validation
+fastapi              # API server
+uvicorn              # ASGI server for FastAPI 
+dotenv              # environment variable management
