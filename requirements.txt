@@ -7,3 +7,4 @@ pydantic             # mission schema validation
 fastapi              # API server
 uvicorn              # ASGI server for FastAPI 
 dotenv              # environment variable management
+firelog==0.1.0       # logging utility for better debugging and monitoring
