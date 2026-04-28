@@ -1,11 +1,9 @@
-from groq import Groq
-from dotenv import load_dotenv, find_dotenv
-from utils.prompt_loader import load_prompt
 
+from dotenv import load_dotenv, find_dotenv
 import sys
 import os
-load_dotenv(find_dotenv())
-groq_key = os.getenv("Grok")
+from ..utils.prompt_loader import load_prompt
+from ..utils.llm_generate import llm_request
 
 def query_expansion(mission_topic,prompt_key)->list[str]:
     """
@@ -29,8 +27,23 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     
     """
     prompt = load_prompt(prompt_key)
-    final_prompt = prompt.format(mission_topic=mission_topic)
 
+    if prompt is None :
+        raise ValueError("the prompt is empty")
+    
+    final_prompt = prompt["prompt"].format(mission_topic=mission_topic)
+    if final_prompt is None :
+        raise ValueError("the final prompt is empty")
+
+    prompt_dict = {
+        "system": prompt["system"],
+        "prompt": final_prompt
+    }
+    Query_dict = llm_request(prompt_dict)
+    if Query_dict is None :
+        raise ValueError("the Query dict is empty")
+
+    return Query_dict
 
 mission = "trespassing in the railways stations"
 output = query_expansion(mission,prompt_key="prompt_expansion")
