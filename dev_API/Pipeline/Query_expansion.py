@@ -1,12 +1,13 @@
-from groq import groq
-import os 
+from groq import Groq
 from dotenv import load_dotenv, find_dotenv
+from utils.prompt_loader import load_prompt
 
-
+import sys
+import os
 load_dotenv(find_dotenv())
 groq_key = os.getenv("Grok")
 
-def query_expansion(mission_topic,key,prompt_key)->list[str]:
+def query_expansion(mission_topic,prompt_key)->list[str]:
     """
     Expands a user query into multiple related queries following a 
     structure .
@@ -27,4 +28,10 @@ def query_expansion(mission_topic,key,prompt_key)->list[str]:
         GroqError : if the tokens are expired or internal server problem
     
     """
-    
+    prompt = load_prompt(prompt_key)
+    final_prompt = prompt.format(mission_topic=mission_topic)
+
+
+mission = "trespassing in the railways stations"
+output = query_expansion(mission,prompt_key="prompt_expansion")
+print(output)

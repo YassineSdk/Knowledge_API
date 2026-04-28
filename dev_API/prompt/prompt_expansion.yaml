@@ -19,21 +19,21 @@ system: >
   Always return valid JSON only — no explanation, no markdown.
 
 prompt: >
-  Given the following internal audit mission topic: "{mission}"
+  Given the following internal audit mission topic: "{mission_topic}"
 
   Expand it into 7 optimised search queries, one for each knowledge dimension below.
   Each query must be specific, searchable, and directly related to the mission topic.
 
   Return ONLY a valid JSON object with this exact structure:
   {{
-    "mission"  : "{mission}",
+    "mission_topic"  : "{mission_topic}",
     "queries"  : {{
-      "context_and_definition" : "query about definitions scope and context of {mission}",
-      "causes"                 : "query about root causes and risk factors of {mission}",
-      "controls"               : "query about internal controls and mitigation for {mission}",
-      "regularisation"         : "query about laws regulations and compliance for {mission}",
-      "best_practices"         : "query about industry best practices and standards for {mission}",
-      "benchmarking"           : "query about KPIs and performance indicators for {mission}",
-      "real_incidents"         : "query about real cases incidents and audit findings for {mission}"
+      "context_and_definition" : "query about definitions scope and context of {mission_topic}",
+      "causes"                 : "query about root causes and risk factors of {mission_topic}",
+      "controls"               : "query about internal controls and mitigation for {mission_topic}",
+      "regularisation"         : "query about laws regulations and compliance for {mission_topic}",
+      "best_practices"         : "query about industry best practices and standards for {mission_topic}",
+      "benchmarking"           : "query about KPIs and performance indicators for {mission_topic}",
+      "real_incidents"         : "query about real cases incidents and audit findings for {mission_topic}"
     }}
   }}

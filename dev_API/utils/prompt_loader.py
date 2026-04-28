@@ -22,6 +22,3 @@ def load_prompt(prompt_name: str):
         prompt = yaml.safe_load(f)
 
     return prompt
-
-prompt = load_prompt("prompt_expansion")
-print(prompt)
