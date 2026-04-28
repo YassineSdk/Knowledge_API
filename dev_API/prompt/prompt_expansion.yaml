@@ -5,11 +5,6 @@
 
 key: query_expansion_v1
 
-desc: >
-  Takes a mission topic from internal audit context and expands it
-  into optimised queries covering 7 knowledge dimensions.
-  Used for RAG retrieval pipeline.
-
 system: >
   You are an expert internal auditor with deep knowledge in risk management,
   compliance, and audit methodologies. Your role is to generate structured,
@@ -19,12 +14,18 @@ system: >
   Always return valid JSON only — no explanation, no markdown.
 
 prompt: >
+
+  Takes a mission topic from internal audit context and expands it
+  into optimised queries covering 7 knowledge dimensions.
+  Used for RAG retrieval pipeline.
+
   Given the following internal audit mission topic: "{mission_topic}"
 
   Expand it into 7 optimised search queries, one for each knowledge dimension below.
   Each query must be specific, searchable, and directly related to the mission topic.
 
   Return ONLY a valid JSON object with this exact structure:
+  rule only return the json no ``` or json
   {{
     "mission_topic"  : "{mission_topic}",
     "queries"  : {{

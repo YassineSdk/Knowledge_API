@@ -4,6 +4,7 @@ import sys
 import os
 from ..utils.prompt_loader import load_prompt
 from ..utils.llm_generate import llm_request
+import json
 
 def query_expansion(mission_topic,prompt_key)->list[str]:
     """
@@ -19,15 +20,15 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
         key (str)  : LLM API key 
         prompt_key : a key that fetches the prompt for this task from the prompt catalog a yaml file 
     Returns:
-        list[str]: A list of expanded queries including the original.
+        list[str]: A list of expanded queries with the objectof of query .
 
     raises :
         ValueError : if one of the args is not in the right type or None or empty
         GroqError : if the tokens are expired or internal server problem
     
     """
+    
     prompt = load_prompt(prompt_key)
-
     if prompt is None :
         raise ValueError("the prompt is empty")
     
@@ -39,12 +40,9 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
         "system": prompt["system"],
         "prompt": final_prompt
     }
-    Query_dict = llm_request(prompt_dict)
-    if Query_dict is None :
+    responses = llm_request(prompt_dict)
+    if responses is None :
         raise ValueError("the Query dict is empty")
 
-    return Query_dict
-
-mission = "trespassing in the railways stations"
-output = query_expansion(mission,prompt_key="prompt_expansion")
-print(output)
+    Queries = json.loads(responses)
+    return Queries
