@@ -47,3 +47,4 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     results = json.loads(responses)
     return results
 
+print(query_expansion("Audit du processus de Paie et de Gestion du Personnel","prompt_expansion"))

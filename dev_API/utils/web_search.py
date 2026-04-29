@@ -33,7 +33,7 @@ def search_web(query,max_results=10):
         search_depth="advanced",
         max_results=max_results,
         include_domains = None,
-        #include_raw_content=True,
+        include_raw_content=True,
         include_answer=True ,
         exclude_domains=  [
         "pinterest.com",
