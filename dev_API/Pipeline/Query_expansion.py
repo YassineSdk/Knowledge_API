@@ -5,6 +5,8 @@ import os
 from ..utils.prompt_loader import load_prompt
 from ..utils.llm_generate import llm_request
 import json
+from ..utils.logger_setup import logger
+from datetime import datetime
 
 def query_expansion(mission_topic,prompt_key)->list[str]:
     """
@@ -27,13 +29,16 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
         GroqError : if the tokens are expired or internal server problem
     
     """
-    
+    logger.info("task_1 : Query expansion started",date=datetime.today())
+
     prompt = load_prompt(prompt_key)
     if prompt is None :
+        logger.error("the prompt is empty")
         raise ValueError("the prompt is empty")
     
     final_prompt = prompt["prompt"].format(mission_topic=mission_topic)
     if final_prompt is None :
+        logger.error("the final prompt is empty")
         raise ValueError("the final prompt is empty")
 
     prompt_dict = {
@@ -42,8 +47,13 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     }
     responses = llm_request(prompt_dict)
     if responses is None :
+        logger.error("the Query dict is empty")
         raise ValueError("the Query dict is empty")
-
+        
+    logger.info("the Queries expansion process is successeful",date=datetime.today())
     results = json.loads(responses)
     return results['queries']
 
+r = query_expansion("Audit of the Expense Reimbursement Process","prompt_expansion")
+
+print(r)

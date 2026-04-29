@@ -1,6 +1,7 @@
 from groq import Groq
 from dotenv import load_dotenv, find_dotenv
 import os 
+from .logger_setup import logger
 
 load_dotenv(find_dotenv())
 key = os.getenv("Grok")
@@ -26,8 +27,12 @@ def llm_request(prompt:dict)-> dict:
         return response.choices[0].message.content.strip()
         
     except AuthenticationError:
+        logger.error("Invalid Groq API key.")
         raise RuntimeError("Invalid Groq API key.")
+
     except RateLimitError:
+        logger.error("Groq rate limit hit, slow down requests.")
+        
         raise RuntimeError("Groq rate limit hit, slow down requests.")
     except BadRequestError as e:
         raise RuntimeError(f"Bad request to Groq: {e}")
