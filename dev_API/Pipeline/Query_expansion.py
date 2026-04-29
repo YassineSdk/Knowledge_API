@@ -44,5 +44,6 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     if responses is None :
         raise ValueError("the Query dict is empty")
 
-    Queries = json.loads(responses)
-    return Queries
+    results = json.loads(responses)
+    return results
+
