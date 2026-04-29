@@ -6,6 +6,13 @@ import logfire
 from dotenv import load_dotenv,find_dotenv
 import os
 from datetime import datetime
+from pathlib import Path
+import json
+
+# importing the toolkit 
+from .Pipeline.Query_expansion import query_expansion
+from .Pipeline.data_collection import getting_documents 
+from .Pipeline.document_cleaning import clean_documents
 
 load_dotenv(find_dotenv())
 
@@ -53,8 +60,32 @@ def root():
 
 @app.post('/Knowledge_API')
 def Knowledge_collection(mission: MissionTopic,api_key: str =Security(api_key_header)):
-    verify_access_permission(api_key)
+
+    # # API authentification
+    # verify_access_permission(api_key)
     logfire.info("access accepted")
+
+    # # getting the mission topic
     logfire.info(f"Received mission: {mission}")
-    return {"mission_topic:": mission.mission}
+
+    # # Query expansion :
+    queries = query_expansion(mission.mission,"prompt_expansion")
+    logfire.info("the Query expansion process is successefull")
+
+    # # Web search 
+    getting_documents(queries)
+    logfire.info("the web search process is successefull")
+
+    # Loading the Documents from json file 
+    file_path= Path("dev_API/files/documents.json")
+    if not file_path.exists():
+        raise FileNotFoundError("the file is not found in :", file_path)
+
+    with open(file_path,"r",encoding="utf-8") as f:
+        store_documents = json.load(f)
+    
+    # Documents raw text cleaning 
+    store_documents_v1 = clean_documents(store_documents)
+
+    return { "clean documents:": store_documents_v1 }
 

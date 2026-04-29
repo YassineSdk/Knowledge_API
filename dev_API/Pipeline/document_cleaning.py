@@ -4,13 +4,13 @@ from tqdm import tqdm
 from pathlib import Path 
 
 # loading the documents as json file 
-file_path= Path("dev_API/files/documents.json")
-if not file_path.exists():
-    raise FileNotFoundError("the file is not found in :", file_path)
+# file_path= Path("dev_API/files/documents.json")
+# if not file_path.exists():
+#     raise FileNotFoundError("the file is not found in :", file_path)
 
-with open(file_path,"r",encoding="utf-8") as f:
-    store_documents = json.load(f)
-    print('the document is loaded')
+# with open(file_path,"r",encoding="utf-8") as f:
+#     store_documents = json.load(f)
+    # print('the document is loaded')
 
 def clean_documents(store_documents:dict):
     """
@@ -37,5 +37,5 @@ def clean_documents(store_documents:dict):
 
     with open(dest_path,"w",encoding="utf-8") as f:
         json.dump(store_documents, f, ensure_ascii=False, indent=4)
-
-clean_documents(store_documents)
+    
+    return store_documents

@@ -45,6 +45,5 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
         raise ValueError("the Query dict is empty")
 
     results = json.loads(responses)
-    return results
+    return results['queries']
 
-print(query_expansion("Audit du processus de Paie et de Gestion du Personnel","prompt_expansion"))
