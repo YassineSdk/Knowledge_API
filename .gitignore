@@ -3,3 +3,4 @@ venv/
 pycache/
 __pycache__/
 .logfire/
+models/

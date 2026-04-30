@@ -1,8 +1,7 @@
-from fastapi import FastAPI , Security,HTTPException, status
+from fastapi import FastAPI , Security,HTTPException, status, Depends
 from fastapi.security import APIKeyHeader
 from contextlib import asynccontextmanager
 from pydantic import BaseModel 
-import logfire 
 from dotenv import load_dotenv,find_dotenv
 import os
 from datetime import datetime
@@ -10,46 +9,60 @@ from pathlib import Path
 import json
 
 # importing the toolkit 
+from  .utils.logger_setup import logger
 from .Pipeline.Query_expansion import query_expansion
 from .Pipeline.data_collection import getting_documents 
 from .Pipeline.document_cleaning import clean_documents
+from sentence_transformers import SentenceTransformer
 
-load_dotenv(find_dotenv())
+
+# setup the logger
 
 
-# setup the logfire
-logfire.configure(token=os.getenv("logfire_key"),
-                console=logfire.ConsoleOptions(verbose=True))
 # getting the key fro .env
 API_KEY = os.getenv("API_key")
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logfire.info("Knowledge API started", date=str(datetime.today()))
+    logger.info("Knowledge API started", date=str(datetime.today()))
     yield
-    logfire.info("Knowledge API closed", date=str(datetime.today()))
+    logger.info("Knowledge API closed", date=str(datetime.today()))
+
+# acess verification using authentification system API_key
+def verify_access_permission(api_key: str =Security(api_key_header)):
+    logger.info("checking the user access rights")
+    if api_key != API_KEY :
+        logger.info("access denied, invalid API key")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid API Key"
+        )
+    return api_key
 
 # defining the app object to create an instance of FastAPi framework 
 app = FastAPI(title='Knowledge API',
             description="""this Service is responsable for generating a referencial of 
             knowledge related to a mission topic in the context of internal audit""",
             lifespan=lifespan,
+            dependencies=[Depends(verify_access_permission)]
             )
 
-# autolog all the evry request, body
-logfire.instrument_fastapi(app)
+# loading the embedding model in startapp
 
-# acess verification using authentification system API_key
-def verify_access_permission(api_key: str =Security(api_key_header)):
-    if api_key != API_KEY :
-        logfire.info("access denied, invalid API key")
-        raise HTTPException(status_code=403, detail='invalid API Key')
-    return api_key
+@app.on_event("startup")
+def load_model():
+    app.state.model = SentenceTransformer(
+        "all-MiniLM-L6-v2",
+        cache_folder="models/"
+    )
 
+# autolog all , evry request, body
+logger.instrument_fastapi(app)
 
 # defining the shape of the request body using pydantic Basemodel
 # Pydantic automaticely validates the recieved data against the schema if missing or wrong type the FastAPI retuns an error 422
+
 class MissionTopic(BaseModel):
     mission : str 
 
@@ -59,33 +72,33 @@ def root():
 
 
 @app.post('/Knowledge_API')
-def Knowledge_collection(mission: MissionTopic,api_key: str =Security(api_key_header)):
+def Knowledge_collection(mission: MissionTopic):
 
-    # # API authentification
-    # verify_access_permission(api_key)
-    logfire.info("access accepted")
+    # auth passed
+    logger.info("access granded")
 
     # # getting the mission topic
-    logfire.info(f"Received mission: {mission}")
+    logger.info(f"Received mission: {mission}")
 
     # # Query expansion :
     queries = query_expansion(mission.mission,"prompt_expansion")
-    logfire.info("the Query expansion process is successefull")
 
     # # Web search 
     getting_documents(queries)
-    logfire.info("the web search process is successefull")
 
     # Loading the Documents from json file 
     file_path= Path("dev_API/files/documents.json")
     if not file_path.exists():
-        raise FileNotFoundError("the file is not found in :", file_path)
+        raise FileNotFoundError("the file is not found in ",path = str(file_path))
 
     with open(file_path,"r",encoding="utf-8") as f:
         store_documents = json.load(f)
     
     # Documents raw text cleaning 
     store_documents_v1 = clean_documents(store_documents)
+
+    model = app.state.model 
+    
 
     return { "clean documents:": store_documents_v1 }
 

@@ -2,40 +2,41 @@ from ..utils.cleaning_text import clean_raw_text
 import json
 from tqdm import tqdm
 from pathlib import Path 
-
-# loading the documents as json file 
-# file_path= Path("dev_API/files/documents.json")
-# if not file_path.exists():
-#     raise FileNotFoundError("the file is not found in :", file_path)
-
-# with open(file_path,"r",encoding="utf-8") as f:
-#     store_documents = json.load(f)
-    # print('the document is loaded')
+from ..utils.logger_setup import logger
+from datetime import datetime as dt
 
 def clean_documents(store_documents:dict):
     """
     takes each websearch query documents (results) and clean the text content 
     """
+    logger.info('task_3 : Documents cleaning started',
+                date= dt.today().isoformat())
+
     if not isinstance(store_documents,dict):
+        logger.error("The store documents is not a dict")
         raise ValueError("The store documents is not a dict")
     
-    for q, documents in tqdm(store_documents.items(), desc = "Cleaning Documents text ..."):
+    for q, documents in tqdm(store_documents.items(), desc = "Cleaning Documents text ...",unit="query"):
         tqdm.write(f"Cleaning Documents of Query : {q}")
+        logger.info(f"Cleaning Documents for query {q}", query=q)
+
         if not isinstance(documents,list):
-            raise ValueError("the documents are not a in a list")
+            logger.error("the document must be a list")
+            raise ValueError("the document must be a list")
     
         for doc in documents:
-            doc['content'] = clean_raw_text(doc['content'])
-            doc['raw_content'] = clean_raw_text(doc['raw_content'])
-        print(f"cleaned : {len(documents)}")
+            doc['content'] = clean_raw_text(doc.get('content', ""))
+            doc['raw_content'] = clean_raw_text(doc.get('raw_content', ""))
+
     
     # storing the clean documents in a json file 
     dest_path = Path("dev_API/files/clean_docs.json")
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not dest_path.exists():
-        raise FileNotFoundError("the file is not found in :", dest_path)
-
+    logger.info("Saving cleaned documents", path=str(dest_path))
     with open(dest_path,"w",encoding="utf-8") as f:
         json.dump(store_documents, f, ensure_ascii=False, indent=4)
+    
+    logger.info("Document cleaning completed")
     
     return store_documents

@@ -1,5 +1,7 @@
 import logfire 
 
-logfire.configure()
+logfire.configure(
+    console=logfire.ConsoleOptions(verbose=True)
+    )
 
 logger = logfire

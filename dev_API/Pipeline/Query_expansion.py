@@ -53,7 +53,3 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     logger.info("the Queries expansion process is successeful",date=datetime.today())
     results = json.loads(responses)
     return results['queries']
-
-r = query_expansion("Audit of the Expense Reimbursement Process","prompt_expansion")
-
-print(r)

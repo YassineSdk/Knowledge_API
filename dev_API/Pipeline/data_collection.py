@@ -1,48 +1,41 @@
 from ..utils.web_search import search_web 
 import logfire
-#import config
 from datetime import datetime as dt
+from pathlib import Path
 import logging
 import json
 from  tqdm import tqdm
-
-
-logging.basicConfig(level=logging.INFO)
+from ..utils.logger_setup import logger
 
 def getting_documents(queries:dict):
     """
     """
-    if queries is None :
-        raise ValueError("the Queries dict is None")
+
+    logger.info(f"task_2 : Documents gathering | queries:{len(queries.keys())} " ,
+                date=dt.today().isoformat())
+
+    if not queries :
+        logger.error("the Queries dict is empty")
+        raise ValueError("the Queries dict is empty")
     
     if not isinstance(queries, dict) :
-        raise ValueError("the Queries are not a dict")
-    
-    #logfire.info(f"the web search started| queries:{len(queries.keys())} |start: {dt.today()} ")
-    logging.info(f"the web search started| queries:{len(queries.keys())} |start: {dt.today()} ")
-
+        logger.error("the Queries are not a dict")
+        raise TypeError("the Queries are not a dict")
     
     documents_store = {}
-    for query_id, search_query in tqdm(queries.items(), desc="Collecting Knowledge") :
+
+    for query_id, search_query in tqdm(queries.items(), desc="Collecting Knowledge",unit="query") :
         tqdm.write(f"searching for query : {query_id}")
+        logger.info(f"search for {query_id} ",query=query_id)
         documents_store[query_id] = search_web(search_query)
-        
-    #logfire.info(f"the web search is successeful | end: {dt.today()} ")
-    logging.info(f"the web search is successeful | end: {dt.today()} ")
     
-    path = "dev_API/files/documents.json"
+    path = Path("dev_API/files/documents.json")
+
+    logger.info('storing the documents')
     with open(path, "w", encoding="utf-8") as f:
         json.dump(documents_store, f, ensure_ascii=False, indent=4)
-    logging.info(f"the documents are stored successefully | end: {dt.today()} ")
     
-# queries = {
-#         'context_and_definition': "Définition et périmètre de l'audit du processus de paie et de gestion du personnel en entreprise",
-#         'causes': 'Facteurs de risque et causes profondes des erreurs dans le processus de paie et de gestion du personnel',
-#         'controls': "Contrôles internes et mesures d'atténuation pour le processus de paie et de gestion du personnel",
-#         'regularisation': 'Réglementations et exigences de conformité pour le processus de paie et de gestion du personnel en France',
-#         'best_practices': "Bonnes pratiques et normes internationales pour l'audit du processus de paie et de gestion du personnel",
-#         'benchmarking': "Indicateurs de performance clés (KPI) pour évaluer l'efficacité du processus de paie et de gestion du personnel",
-#         'real_incidents': "Exemples de cas réels d'erreurs ou d'irrégularités dans le processus de paie et de gestion du personnel et leurs conséquences" 
-#         }
+    logger.info("task_2 : Documents gathering ended successefully" , date=dt.today().isoformat())
+    
 
 
