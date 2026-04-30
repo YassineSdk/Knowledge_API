@@ -3,7 +3,9 @@ from ..utils.logger_setup import logger
 
 def documents_ranking(model,q_documents,q):
     """
-    
+    this function works as a ranking engine that uses a hybrid way where it combines 
+    embeddings and BM25 ranking and information retrievel techniques in order to Keep the relevant documents to the query 
+
     """
     Documents = [
         (
@@ -40,6 +42,7 @@ def documents_ranking(model,q_documents,q):
     final_rank = sorted(RRf_scores, key=RRf_scores.get, reverse=True)
 
     # Ranking the documents list 
-    ranked_documents = [q_documents[int(i)] for i in final_rank]
-    return ranked_documents
+    #ranked_documents = [q_documents[int(i)] for i in final_rank]
+    return final_rank
+    
 

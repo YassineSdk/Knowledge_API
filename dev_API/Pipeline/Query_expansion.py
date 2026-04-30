@@ -8,7 +8,7 @@ import json
 from ..utils.logger_setup import logger
 from datetime import datetime
 
-def query_expansion(mission_topic,prompt_key)->list[str]:
+def query_expansion(mission_topic,prompt_key)-> list[dict]:
     """
     Expands a user query into multiple related queries following a 
     structure .
@@ -53,3 +53,5 @@ def query_expansion(mission_topic,prompt_key)->list[str]:
     logger.info("the Queries expansion process is successeful",date=datetime.today())
     results = json.loads(responses)
     return results['queries']
+
+# print(query_expansion("Audit of Internal Controls over the Purchase-to-Pay Cycle","query_expansion"))

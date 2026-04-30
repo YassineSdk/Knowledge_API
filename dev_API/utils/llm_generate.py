@@ -32,10 +32,11 @@ def llm_request(prompt:dict)-> dict:
 
     except RateLimitError:
         logger.error("Groq rate limit hit, slow down requests.")
-        
         raise RuntimeError("Groq rate limit hit, slow down requests.")
+
     except BadRequestError as e:
         raise RuntimeError(f"Bad request to Groq: {e}")
+        
     except GroqError as e:
         raise RuntimeError(f"Groq API error: {e}")
     
