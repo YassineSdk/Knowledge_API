@@ -50,13 +50,20 @@ app = FastAPI(title='Knowledge API',
 
 # loading the embedding model in startapp
 
-@app.on_event("startup")
-def load_model():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- startup ---
+    logger.info("Knowledge API started", date=str(datetime.today()))
     app.state.model = SentenceTransformer(
         "all-MiniLM-L6-v2",
         cache_folder="models/"
     )
+    logger.info(f"Model loaded successfully — embedding dim: {app.state.model.get_sentence_embedding_dimension()}")
+    yield
+    # --- shutdown ---
+    logger.info("Knowledge API closed", date=str(datetime.today()))
 
+    
 # autolog all , evry request, body
 logger.instrument_fastapi(app)
 
@@ -80,25 +87,32 @@ def Knowledge_collection(mission: MissionTopic):
     # # getting the mission topic
     logger.info(f"Received mission: {mission}")
 
-    # # Query expansion :
-    queries = query_expansion(mission.mission,"prompt_expansion")
+    model = getattr(app.state, "model", None)
 
-    # # Web search 
-    getting_documents(queries)
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded.")
+    return {"status": "ok", "model": "all-MiniLM-L6-v2"}
 
-    # Loading the Documents from json file 
-    file_path= Path("dev_API/files/documents.json")
-    if not file_path.exists():
-        raise FileNotFoundError("the file is not found in ",path = str(file_path))
+    # # # Query expansion :
+    # queries = query_expansion(mission.mission,"prompt_expansion")
 
-    with open(file_path,"r",encoding="utf-8") as f:
-        store_documents = json.load(f)
+    # # # Web search 
+    # getting_documents(queries)
+
+    # # Loading the Documents from json file 
+    # file_path= Path("dev_API/files/documents.json")
+    # if not file_path.exists():
+    #     raise FileNotFoundError("the file is not found in ",path = str(file_path))
+
+    # with open(file_path,"r",encoding="utf-8") as f:
+    #     store_documents = json.load(f)
     
-    # Documents raw text cleaning 
-    store_documents_v1 = clean_documents(store_documents)
-
-    model = app.state.model 
+    # # Documents raw text cleaning 
+    # store_documents_v1 = clean_documents(store_documents)
     
 
-    return { "clean documents:": store_documents_v1 }
+    # return { "clean documents:": store_documents_v1 }
+    return {
+        "mission":mission.mission
+    }
 

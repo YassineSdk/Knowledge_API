@@ -3,48 +3,72 @@ import numpy as np
 from rank_bm25 import BM25Okapi
 
 
-def rank_documents(model,q_documents,q_reform):
-    """
-    this function works as a ranking engine that uses a hybrid approach where it combines 
-    embeddings and BM25 ranking and information retrievel techniques in order to Keep the relevant documents to the query 
+def rank_chunks(model,
+    chunks:list[dict],
+    q_reform:str,
+    top_k:str)-> list[dict]:
 
     """
-    Documents = [
-        (
-        (r.get('title') or ' ') + 
-        (r.get('content') or ' ') +
-        (r.get('raw_content') or ' ')
-        ) for r in search_results
-    ]
+    Hybrid ranking engine combining BM25 and embedding similarity
+    via Reciprocal Rank Fusion (RRF) to retrieve the most relevant chunks.
+
+    Args:
+        model:   Sentence embedding model (e.g. SentenceTransformer).
+        chunks:  Flat list of chunk dicts with at least a 'text' key.
+        query:   The reformulated query string for this layer.
+        top_k:   Number of top chunks to return after fusion.
+
+    Returns:
+        List of top_k chunk dicts ranked by RRF score, each with an added 'rrf_score' key.
+
+    """
+    if not chunks:
+        logger.error("Chunks list is empty.")
+        raise ValueError("Chunks list is empty.")
+    
+    if not query.strip():
+        logger.error("Query is empty.")
+        raise ValueError("Query is empty.")
+
+
+    logger.info(f"Ranking {len(chunks)} chunks for query: '{query}'")
+
+    texts=[c.get("chunk"," ") for c in chunks]
 
     # --BM25 
-    tokenized = [doc.lower().split() for doc in Documents]
+    tokenized = [text.lower().split() for text in texts ]
     bm25 = BM25Okapi(tokenized)
     bm25_scores = bm25.get_scores(q_reform.lower().split())
     bm25_ranks = np.argsort(bm25_scores)[::-1]
 
     # --embedding 
-    Document_emb = model_emb.encode(Documents,normalize_embeddings=True)
+    Document_emb = model_emb.encode(texts,normalize_embeddings=True)
     query_emb = model_emb.encode(q_reform,normalize_embeddings=True)
     emb_scores = np.dot(Document_emb,query_emb.T)
     emb_ranks = np.argsort(emb_scores)[::-1]
 
     #--RRF Reciprocal Ranking Fusion 
     k = 60 
-    RRf_scores = {}
+    rrf_scores: dict[int, float] = {}
 
     # BM_scores :
     for rank , idx in enumerate(bm25_ranks):
-        RRf_scores[idx] = RRf_scores.get(idx, 0) + 1/(k + rank)
+        rrf_scores[idx] = rrf_scores.get(idx, 0.0) + 1/(k + rank)
     
     # Emb_scores :
     for rank , idx in enumerate(emb_ranks):
-        RRf_scores[idx] = RRf_scores.get(idx, 0) + 1/(k + rank)
+        rrf_scores[idx] = rrf_scores.get(idx, 0.0) + 1/(k + rank)
 
-    final_rank = sorted(RRf_scores, key=RRf_scores.get, reverse=True)
+    final_ranks = sorted(rrf_scores, key=rrf_scores.get, reverse=True)[:top_k]
 
-    # Ranking the documents list 
-    #ranked_documents = [q_documents[int(i)] for i in final_rank]
-    return final_rank
+    ranked_chunks = []
+    for idx in final_ranks:
+        chunk=chunks[int(idx)].copy()
+        chunks["RRF_score"] = round(rrf_scores[idx],4)
+        ranked_chunks.append(chunk)
+    
+    logger.info(f"Returning top {len(ranked_chunks)} chunks after RRF fusion.")
+    return ranked_chunks 
+
     
 

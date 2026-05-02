@@ -1,24 +1,24 @@
-from .utils.documents_ranking import rank_documents
+from .utils.chunks_ranking import rank_chunks
 from .utils.logger_setup import logger 
 
 
-def rank_results(documents_store:dict[list],model,queries_refom:dict):
+def rank_docs_chunks(chunks_store:dict[str,list],model,queries_refom:dict)-> dict[str,list]:
     """
     ank documents for each query using the provided model.
     
     Args:
-        documents_store: Dict mapping query -> list of documents
+        chunks_store: Dict mapping query -> list of documents
         model: Ranking model instance
         queries_reform: Dict mapping query -> reformulated query
         
     Returns:
-        documents_store with documents ranked by relevance
+        chunks_store with documents ranked by relevance
     """
-    if not documents_store:
-        logger.error("documents are empty")
-        raise ValueError("the document are empty")
+    if not chunks_store:
+        logger.error("chunks dict are empty")
+        raise ValueError("the chunks dict are empty")
 
-    if not isinstance(documents_store,dict):
+    if not isinstance(chunks_store,dict):
         logger.error("the documents must be a dict")
         raise ValueError("the documents must be a dict")
     
@@ -33,19 +33,14 @@ def rank_results(documents_store:dict[list],model,queries_refom:dict):
         logger.error("the model does not exist")
         raise ValueError("the model does not exist")
 
-    for q in documents_store.keys():
-        q_documents = documents_store[q]
+    for q in chunks_store.keys():
+        q_chunks = chunks_store[q]
         q_refom = queries_refom[q]
+        chunks_store[q] = rank_documents(model,q_chunks,q_refom)
 
-        documents_rank = rank_documents(model,q_documents,q_refom)
-
-        if not documents_rank:
-            raise ValueError("the documents rank is empty")
-        documents_store[q] = [q_documents[int(i)] for i in documents_rank]
         logger.info(f'documents for query : {q} is ranked')
     
-
-    return documents_store
+    return chunks_store
 
 
 
