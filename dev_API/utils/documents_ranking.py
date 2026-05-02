@@ -1,9 +1,11 @@
-from ..utils.logger_setup import logger 
+from ..utils.logger_setup import logger
+import numpy as np 
+from rank_bm25 import BM25Okapi
 
 
-def documents_ranking(model,q_documents,q):
+def rank_documents(model,q_documents,q_reform):
     """
-    this function works as a ranking engine that uses a hybrid way where it combines 
+    this function works as a ranking engine that uses a hybrid approach where it combines 
     embeddings and BM25 ranking and information retrievel techniques in order to Keep the relevant documents to the query 
 
     """
@@ -18,12 +20,12 @@ def documents_ranking(model,q_documents,q):
     # --BM25 
     tokenized = [doc.lower().split() for doc in Documents]
     bm25 = BM25Okapi(tokenized)
-    bm25_scores = bm25.get_scores(q.lower().split())
+    bm25_scores = bm25.get_scores(q_reform.lower().split())
     bm25_ranks = np.argsort(bm25_scores)[::-1]
 
     # --embedding 
     Document_emb = model_emb.encode(Documents,normalize_embeddings=True)
-    query_emb = model_emb.encode(q,normalize_embeddings=True)
+    query_emb = model_emb.encode(q_reform,normalize_embeddings=True)
     emb_scores = np.dot(Document_emb,query_emb.T)
     emb_ranks = np.argsort(emb_scores)[::-1]
 
