@@ -1,8 +1,8 @@
-from .utils.chunks_ranking import rank_chunks
-from .utils.logger_setup import logger 
+from ..utils.chunks_ranking import rank_chunks
+from ..utils.logger_setup import logger 
 
 
-def rank_docs_chunks(chunks_store:dict[str,list],model,queries_refom:dict)-> dict[str,list]:
+def rank_docs_chunks(chunks_store:dict[str,list],model,queries_refom:dict,top_k:str)-> dict[str,list]:
     """
     ank documents for each query using the provided model.
     
@@ -36,7 +36,7 @@ def rank_docs_chunks(chunks_store:dict[str,list],model,queries_refom:dict)-> dic
     for q in chunks_store.keys():
         q_chunks = chunks_store[q]
         q_refom = queries_refom[q]
-        chunks_store[q] = rank_documents(model,q_chunks,q_refom)
+        chunks_store[q] = rank_chunks(model,q_chunks,q_refom,top_k)
 
         logger.info(f'documents for query : {q} is ranked')
     

@@ -26,12 +26,10 @@ def rank_chunks(model,
         logger.error("Chunks list is empty.")
         raise ValueError("Chunks list is empty.")
     
-    if not query.strip():
+    if not q_reform.strip():
         logger.error("Query is empty.")
         raise ValueError("Query is empty.")
 
-
-    logger.info(f"Ranking {len(chunks)} chunks for query: '{query}'")
 
     texts=[c.get("chunk"," ") for c in chunks]
 
@@ -42,8 +40,8 @@ def rank_chunks(model,
     bm25_ranks = np.argsort(bm25_scores)[::-1]
 
     # --embedding 
-    Document_emb = model_emb.encode(texts,normalize_embeddings=True)
-    query_emb = model_emb.encode(q_reform,normalize_embeddings=True)
+    Document_emb = model.encode(texts,normalize_embeddings=True)
+    query_emb = model.encode(q_reform,normalize_embeddings=True)
     emb_scores = np.dot(Document_emb,query_emb.T)
     emb_ranks = np.argsort(emb_scores)[::-1]
 
@@ -64,7 +62,7 @@ def rank_chunks(model,
     ranked_chunks = []
     for idx in final_ranks:
         chunk=chunks[int(idx)].copy()
-        chunks["RRF_score"] = round(rrf_scores[idx],4)
+        chunk["RRF_score"] = round(rrf_scores[int(idx)],4)
         ranked_chunks.append(chunk)
     
     logger.info(f"Returning top {len(ranked_chunks)} chunks after RRF fusion.")

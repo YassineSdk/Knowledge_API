@@ -10,24 +10,14 @@ import json
 
 # importing the toolkit 
 from  .utils.logger_setup import logger
-from .Pipeline.Query_expansion import query_expansion
-from .Pipeline.data_collection import getting_documents 
-from .Pipeline.document_cleaning import clean_documents
+from  .orchestrater import inital_generation
 from sentence_transformers import SentenceTransformer
 
-
-# setup the logger
 
 
 # getting the key fro .env
 API_KEY = os.getenv("API_key")
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Knowledge API started", date=str(datetime.today()))
-    yield
-    logger.info("Knowledge API closed", date=str(datetime.today()))
 
 # acess verification using authentification system API_key
 def verify_access_permission(api_key: str =Security(api_key_header)):
@@ -40,15 +30,8 @@ def verify_access_permission(api_key: str =Security(api_key_header)):
         )
     return api_key
 
-# defining the app object to create an instance of FastAPi framework 
-app = FastAPI(title='Knowledge API',
-            description="""this Service is responsable for generating a referencial of 
-            knowledge related to a mission topic in the context of internal audit""",
-            lifespan=lifespan,
-            dependencies=[Depends(verify_access_permission)]
-            )
-
 # loading the embedding model in startapp
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -60,10 +43,18 @@ async def lifespan(app: FastAPI):
     )
     logger.info(f"Model loaded successfully — embedding dim: {app.state.model.get_sentence_embedding_dimension()}")
     yield
-    # --- shutdown ---
     logger.info("Knowledge API closed", date=str(datetime.today()))
 
-    
+
+# defining the app object to create an instance of FastAPi framework 
+app = FastAPI(title='Knowledge API',
+            description="""this Service is responsable for generating a referencial of 
+            knowledge related to a mission topic in the context of internal audit""",
+            lifespan=lifespan,
+            dependencies=[Depends(verify_access_permission)]
+            )
+
+
 # autolog all , evry request, body
 logger.instrument_fastapi(app)
 
@@ -90,29 +81,12 @@ def Knowledge_collection(mission: MissionTopic):
     model = getattr(app.state, "model", None)
 
     if model is None:
+        logger.error("model not loaded")
         raise HTTPException(status_code=503, detail="Model not loaded.")
-    return {"status": "ok", "model": "all-MiniLM-L6-v2"}
 
-    # # # Query expansion :
-    # queries = query_expansion(mission.mission,"prompt_expansion")
 
-    # # # Web search 
-    # getting_documents(queries)
-
-    # # Loading the Documents from json file 
-    # file_path= Path("dev_API/files/documents.json")
-    # if not file_path.exists():
-    #     raise FileNotFoundError("the file is not found in ",path = str(file_path))
-
-    # with open(file_path,"r",encoding="utf-8") as f:
-    #     store_documents = json.load(f)
-    
-    # # Documents raw text cleaning 
-    # store_documents_v1 = clean_documents(store_documents)
-    
-
-    # return { "clean documents:": store_documents_v1 }
+    chunks_store_R1 = inital_generation(mission.mission,model)
     return {
-        "mission":mission.mission
+        "Ranked_chunks":chunks_store_R1
     }
 
