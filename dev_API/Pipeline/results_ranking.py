@@ -2,12 +2,21 @@ from .utils.documents_ranking import rank_documents
 from .utils.logger_setup import logger 
 
 
-def rank_results(documents_store:dict,model,queries_refom:dict):
+def rank_results(documents_store:dict[list],model,queries_refom:dict):
     """
+    ank documents for each query using the provided model.
+    
+    Args:
+        documents_store: Dict mapping query -> list of documents
+        model: Ranking model instance
+        queries_reform: Dict mapping query -> reformulated query
+        
+    Returns:
+        documents_store with documents ranked by relevance
     """
     if not documents_store:
-        logger.error("document store is empty")
-        raise ValueError("the document is empty")
+        logger.error("documents are empty")
+        raise ValueError("the document are empty")
 
     if not isinstance(documents_store,dict):
         logger.error("the documents must be a dict")
@@ -34,5 +43,9 @@ def rank_results(documents_store:dict,model,queries_refom:dict):
             raise ValueError("the documents rank is empty")
         documents_store[q] = [q_documents[int(i)] for i in documents_rank]
         logger.info(f'documents for query : {q} is ranked')
+    
+
+    return documents_store
+
 
 
