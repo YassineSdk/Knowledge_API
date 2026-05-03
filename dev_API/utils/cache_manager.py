@@ -29,7 +29,7 @@ def load_cache(mission_id:str)-> dict | None :
         raise FileNotFoundError(f"the chunks files for session {mission_id} is not found")
     
     with open(path,"r",encoding="utf-8") as f :
-        payload = json.load(f)
+        payload = json.load(f,ensure_ascii=False, indent=4)
     
     if time.time() - payload['timestamp'] > CACHE_TTL:
         path.unlink() # deletes the expired file 

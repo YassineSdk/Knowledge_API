@@ -12,6 +12,7 @@ import json
 from  .utils.logger_setup import logger
 from  .orchestrater import full_pipeline
 from sentence_transformers import SentenceTransformer
+from sentence_transformers import CrossEncoder
 
 
 
@@ -37,11 +38,22 @@ def verify_access_permission(api_key: str =Security(api_key_header)):
 async def lifespan(app: FastAPI):
     # --- startup ---
     logger.info("Knowledge API started", date=str(datetime.today()))
-    app.state.model = SentenceTransformer(
+    
+    # Loading the embedding model at startup
+    app.state.emb_model = SentenceTransformer(
         "all-MiniLM-L6-v2",
         cache_folder="models/"
     )
-    logger.info(f"Model loaded successfully — embedding dim: {app.state.model.get_sentence_embedding_dimension()}")
+
+    # loading the CrossEncoder model at startup
+    app.state.encod_model = CrossEncoder(
+    "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    cache_folder="models/"
+    )
+
+    logger.info(f"embedding Model loaded successfully — embedding dim: {app.state.emb_model.get_sentence_embedding_dimension()}")
+    logger.info(" encoder Model loaded successfully ")
+
     yield
     logger.info("Knowledge API closed", date=str(datetime.today()))
 
@@ -73,21 +85,26 @@ def root():
 def Knowledge_collection(mission: MissionTopic):
 
     # auth passed
-    logger.info("access granded")
+    logger.info("access granted")
 
     # # getting the mission topic
     logger.info(f"Received mission: {mission}")
 
-    model = getattr(app.state, "model", None)
-
-    if model is None:
-        logger.error("model not loaded")
-        raise HTTPException(status_code=503, detail="Model not loaded.")
+    emb_model = getattr(app.state, "emb_model", None)
+    encoder_model = getattr(app.state, "encod_model", None)
 
 
-    chunks_store_R1 = full_pipeline(mission.mission,model)
+    if emb_model is None:
+        logger.error("Embedding model not loaded")
+        raise HTTPException(status_code=503, detail="Embedding Model not loaded.")
+
+    if encoder_model is None:
+        logger.error("CrossEncoder model not loaded")
+        raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
+
+
+    chunks_store_R2 = full_pipeline(mission.mission,emb_model,encoder_model)
     
     return {
-        "Ranked_chunks":chunks_store_R1
+        "Ranked_chunks":chunks_store_R2
     }
-
