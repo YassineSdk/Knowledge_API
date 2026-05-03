@@ -10,7 +10,7 @@ import json
 
 # importing the toolkit 
 from  .utils.logger_setup import logger
-from  .orchestrater import inital_generation
+from  .orchestrater import full_pipeline
 from sentence_transformers import SentenceTransformer
 
 
@@ -85,7 +85,8 @@ def Knowledge_collection(mission: MissionTopic):
         raise HTTPException(status_code=503, detail="Model not loaded.")
 
 
-    chunks_store_R1 = inital_generation(mission.mission,model)
+    chunks_store_R1 = full_pipeline(mission.mission,model)
+    
     return {
         "Ranked_chunks":chunks_store_R1
     }

@@ -8,7 +8,7 @@ import json
 from ..utils.logger_setup import logger
 from datetime import datetime
 
-def queries_reformulate(mission_topic:str, queries:dict,prompt_key:str)->dict:
+def reformulate_queries(mission_topic:str, queries:dict,prompt_key:str)->dict:
     """
     Reformulates a structured dict of audit queries into semantically dense
     type-descriptor paragraphs optimized for hybrid BM25 + semantic ranking.

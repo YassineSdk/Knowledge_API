@@ -8,7 +8,7 @@ import json
 from ..utils.logger_setup import logger
 from datetime import datetime
 
-def query_expansion(mission_topic,prompt_key)-> list[dict]:
+def expand_queries(mission_topic,prompt_key)-> list[dict]:
     """
     Expands a user query into multiple related queries following a 
     structure .

@@ -1,23 +1,25 @@
 from pathlib import Path
 import json
-from .Pipeline.Query_expansion import query_expansion
+import time
+from sentence_transformers import SentenceTransformer 
+from .Pipeline.Query_expansion import expand_queries
 from .Pipeline.data_collection import getting_documents 
 from .Pipeline.document_cleaning import clean_documents
-from sentence_transformers import SentenceTransformer 
 from .Pipeline.documents_chunking import chunking_documents_store
 from .Pipeline.document_chunks_ranking import rank_docs_chunks
-from .Pipeline.queries_reformation import queries_reformulate
+from .Pipeline.queries_reformation import reformulate_queries
+from .utils.cache_manager import load_cache, save_cache, clear_cache
 
-def inital_generation(mission,model):
+def full_pipeline(mission:str,model)-> dict[str,list]:
     """
     doctstring
 
     """
-    # #--Query expansion :
-    queries = query_expansion(mission,"query_expansion")
+    #--Query expansion :
+    queries = expand_queries(mission,"query_expansion")
 
-    # #--Web search 
-    # getting_documents(queries)
+    #--Web search 
+    getting_documents(queries)
 
     #--Loading the Documents from json file 
     file_path= Path("dev_API/files/documents.json")
@@ -34,10 +36,13 @@ def inital_generation(mission,model):
     chunks_store = chunking_documents_store(store_documents_v1)
 
     #--Queries reformation
-    queries_refom = queries_reformulate(mission,queries,prompt_key="queries_reformulation")
+    queries_refom = reformulate_queries(mission,queries,prompt_key="queries_reformulation")
 
     #--Chunks first level Ranking 
     chunks_store_R1 = rank_docs_chunks(chunks_store,model,queries_refom,top_k=150)
+
+    #--saving chunks in cache file
+    save_cache("mission_1",chunks_store_R1)
 
     return chunks_store_R1
 
