@@ -7,11 +7,11 @@ CACHE_TTL = 60 * 60
 
 
 
-def get_cache_path(mission_id:str)-> Path:
-    return CACHE_DIR / f"chunks_{mission_id}.json"
+def get_cache_path(mission_id:str,Version:str)-> Path:
+    return CACHE_DIR / f"chunks_{mission_id}_{Version}.json"
 
 
-def save_cache(mission_id:str,chunks:dict[str,list])-> None:
+def save_cache(mission_id:str,Version:str,chunks:dict[str,list])-> None:
     CACHE_DIR.mkdir(parents=True,exist_ok=True)
     payload = {
         "timestamp":time.time(),
@@ -22,11 +22,11 @@ def save_cache(mission_id:str,chunks:dict[str,list])-> None:
         json.dump(payload, f)
 
 
-def load_cache(mission_id:str)-> dict | None :
-    path = get_cache_path(mission_id)
+def load_cache(mission_id:str,Version:str)-> dict | None :
+    path = get_cache_path(mission_id,Version)
 
     if not path.exists():
-        raise FileNotFoundError(f"the chunks files for session {mission_id} is not found")
+        raise FileNotFoundError(f"the chunks files for session {mission_id} version {Version} is not found")
     
     with open(path,"r",encoding="utf-8") as f :
         payload = json.load(f,ensure_ascii=False, indent=4)
@@ -39,7 +39,7 @@ def load_cache(mission_id:str)-> dict | None :
 
 
 
-def clear_cache(mission_id: str) -> None:
+def clear_cache(mission_id: str,version:str) -> None:
     path = get_cache_path(mission_id)
     if path.exists():
         path.unlink()

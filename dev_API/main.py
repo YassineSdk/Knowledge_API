@@ -103,8 +103,8 @@ def Knowledge_collection(mission: MissionTopic):
         raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
 
 
-    chunks_store_R2 = full_pipeline(mission.mission,emb_model,encoder_model)
+    tokens_repport= full_pipeline(mission.mission,emb_model,encoder_model)
     
     return {
-        "Ranked_chunks":chunks_store_R2
+        "tokens repport":tokens_repport
     }

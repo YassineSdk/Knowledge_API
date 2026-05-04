@@ -1,8 +1,8 @@
 
 def chunk_document(document:dict,
                     doc_id:int,
-                    chunk_size=150,
-                    overlap=50
+                    chunk_size=250,
+                    overlap=90
     )->list[str]:
     """
         Split a single document's text into overlapping word-level chunks.
