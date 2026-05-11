@@ -54,4 +54,4 @@ def expand_queries(mission_topic,prompt_key)-> list[dict]:
     results = json.loads(responses)
     return results['queries']
 
-# print(query_expansion("Audit of Internal Controls over the Purchase-to-Pay Cycle","query_expansion"))
+#print(expand_queries("audit de communication de crise","query_expansion"))

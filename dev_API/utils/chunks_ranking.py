@@ -6,7 +6,7 @@ from rank_bm25 import BM25Okapi
 def rank_chunks(model,
     chunks:list[dict],
     q_reform:str,
-    top_k:str)-> list[dict]:
+    top_k:int)-> list[dict]:
 
     """
     Hybrid ranking engine combining BM25 and embedding similarity
@@ -65,7 +65,6 @@ def rank_chunks(model,
         chunk["RRF_score"] = round(rrf_scores[int(idx)],4)
         ranked_chunks.append(chunk)
     
-    logger.info(f"Returning top {len(ranked_chunks)} chunks after RRF fusion.")
     return ranked_chunks 
 
     

@@ -22,7 +22,7 @@ def llm_request(prompt:dict)-> dict:
             {"role":"system", "content":prompt["system"]},
             {"role":"user", "content":prompt["prompt"]},
         ],
-        temperature=.4,
+        temperature=.5,
         )
         return response.choices[0].message.content.strip()
         

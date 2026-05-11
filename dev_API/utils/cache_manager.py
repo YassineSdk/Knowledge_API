@@ -18,7 +18,7 @@ def save_cache(mission_id:str,Version:str,chunks:dict[str,list])-> None:
         "chunks":chunks
     }
 
-    with open(get_cache_path(mission_id),"w",encoding="utf-8") as f :
+    with open(get_cache_path(mission_id,Version),"w",encoding="utf-8") as f :
         json.dump(payload, f)
 
 
@@ -29,7 +29,7 @@ def load_cache(mission_id:str,Version:str)-> dict | None :
         raise FileNotFoundError(f"the chunks files for session {mission_id} version {Version} is not found")
     
     with open(path,"r",encoding="utf-8") as f :
-        payload = json.load(f,ensure_ascii=False, indent=4)
+        payload = json.load(f)
     
     if time.time() - payload['timestamp'] > CACHE_TTL:
         path.unlink() # deletes the expired file 

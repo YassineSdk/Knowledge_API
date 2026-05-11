@@ -31,18 +31,19 @@ def evaluation_tokens(chunks_store:dict[str,list],tokenizer=None)->dict:
     
 
     tokens_report = {}
-    for q,chunks in chunks_store.items()
+    for q,chunks in chunks_store.items():
         chunks_list = [chunk.get('chunk'," ") for chunk in chunks]
         query_tokens = tokenize(q)
-        corpus = " ".join(chunks_list)
-        chunks_tokens = sum(tokenize(corpus))
+        corpus = "_".join(chunks_list)
+        chunks_tokens = tokenize(corpus)
         tokens_report[q] = {
             "query_tokens": query_tokens,
             "chunks_tokens": chunks_tokens,
             "total_tokens": query_tokens + chunks_tokens,
-            "num_chunks": len(chunks_list),
-            ""
-        }
+            "num_chunks": len(chunks_list)
+            }
+    
+    logger.info("Tokens repport :",repport=tokens_report)
     
     return tokens_report
 
