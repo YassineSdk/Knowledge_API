@@ -1,8 +1,6 @@
 from ..utils.web_search import search_web 
-import logfire
 from datetime import datetime as dt
 from pathlib import Path
-import logging
 import json
 from  tqdm import tqdm
 from ..utils.logger_setup import logger
@@ -11,8 +9,7 @@ def getting_documents(queries:dict):
     """
     """
 
-    logger.info(f"task_2 : Documents gathering | queries:{len(queries.keys())} " ,
-                date=dt.today().isoformat())
+    logger.info(f"task_2 : Documents gathering | queries:{len(queries.keys())}")
 
     if not queries :
         logger.error("the Queries dict is empty")
@@ -34,7 +31,7 @@ def getting_documents(queries:dict):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(documents_store, f, ensure_ascii=False, indent=4)
     
-    logger.info("task_2 : Documents gathering ended successefully" , date=dt.today().isoformat())
+    logger.info("task_2 : Documents gathering ended successefully")
     return documents_store
     
 

@@ -29,7 +29,7 @@ def expand_queries(mission_topic,prompt_key)-> list[dict]:
         GroqError : if the tokens are expired or internal server problem
     
     """
-    logger.info("task_1 : Query expansion started",date=datetime.today())
+    logger.info("task_1 : Query expansion started")
 
     prompt = load_prompt(prompt_key)
     if prompt is None :
@@ -50,7 +50,7 @@ def expand_queries(mission_topic,prompt_key)-> list[dict]:
         logger.error("the Query dict is empty")
         raise ValueError("the Query dict is empty")
         
-    logger.info("the Queries expansion process is successeful",date=datetime.today())
+    logger.info("the Queries expansion process is successeful")
     results = json.loads(responses)
     return results['queries']
 

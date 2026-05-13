@@ -37,7 +37,7 @@ def verify_access_permission(api_key: str =Security(api_key_header)):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # --- startup ---
-    logger.info("Knowledge API started", date=str(datetime.today()))
+    logger.info("Knowledge API started")
     
     # Loading the embedding model at startup
     app.state.emb_model = SentenceTransformer(
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
     logger.info(" encoder Model loaded successfully ")
 
     yield
-    logger.info("Knowledge API closed", date=str(datetime.today()))
+    logger.info("Knowledge API closed")
 
 
 # defining the app object to create an instance of FastAPi framework 
@@ -67,8 +67,7 @@ app = FastAPI(title='Knowledge API',
             )
 
 
-# autolog all , evry request, body
-logger.instrument_fastapi(app)
+# Note: logfire instrumentation removed, using standard Python logging
 
 # defining the shape of the request body using pydantic Basemodel
 # Pydantic automaticely validates the recieved data against the schema if missing or wrong type the FastAPI retuns an error 422

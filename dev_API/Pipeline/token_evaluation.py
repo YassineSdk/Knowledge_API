@@ -13,7 +13,7 @@ def evaluation_tokens(chunks_store:dict[str,list],tokenizer=None)->dict:
     Returns:
         dict where each query maps to its total token count
     """
-    logger.info("--starting the tokens evaluation process", date=dt.today())
+    logger.info("--starting the tokens evaluation process")
 
     if tokenizer is None :
         enc = tiktoken.get_encoding("cl100k_base")
@@ -43,7 +43,7 @@ def evaluation_tokens(chunks_store:dict[str,list],tokenizer=None)->dict:
             "num_chunks": len(chunks_list)
             }
     
-    logger.info("Tokens repport :",repport=tokens_report)
+    logger.info(f"Tokens report: {tokens_report}")
     
     return tokens_report
 

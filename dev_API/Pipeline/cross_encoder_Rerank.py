@@ -74,7 +74,7 @@ def cross_encoder_rerank(
             logger.error(f"Ranked chunks for '{q}' are empty after reranking")
             raise ValueError(f"Ranked chunks for '{q}' are empty after reranking")
         
-        logger.info(f"chunks for {q} are reranked successfully", date=dt.today())
+        logger.info(f"chunks for {q} are reranked successfully")
         chunks_store[q] = ranked_chunks[:top_k]
 
     return chunks_store

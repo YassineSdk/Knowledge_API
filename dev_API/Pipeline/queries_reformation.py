@@ -31,7 +31,7 @@ def reformulate_queries(mission_topic:str, queries:dict,prompt_key:str)->dict:
         GroqError:  If the Groq API returns an auth, rate limit, or server error.
     """
 
-    logger.info("task_1 : Query Reformation started",date=datetime.today())
+    logger.info("task_1 : Query Reformation started")
 
     prompt = load_prompt(prompt_key)
     if prompt is None :
@@ -52,7 +52,7 @@ def reformulate_queries(mission_topic:str, queries:dict,prompt_key:str)->dict:
         logger.error("the Query dict is empty")
         raise ValueError("the Query dict is empty")
         
-    logger.info("the Queries Reformation process is successeful",date=datetime.today())
+    logger.info("the Queries Reformation process is successeful")
     results = json.loads(responses)
     return results
 

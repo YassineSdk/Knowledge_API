@@ -1,18 +1,85 @@
+from ..utils.prompt_loader import load_prompt 
+from ..utils.llm_generate import llm_request 
+from ..utils.prompt_builder import build_prompt
+from fastapi import HTTPException
+from pathlib import Path
+import os
+import json
+from tqdm import tqdm
 
 
+def synthesis_Knowledge(mission_id:str,prompt_key:str)-> dict[str,list]:
+    """
+    this is the final layer of the pipeline where this function turns the Top chunks for each layer into a 
+    structured articles following a prompt that defines 
+        - the synthesis objectives
+        - output philosophy
+        - article structure
+        - behavioral constraints
+    
+    Process : 
+    for each layer :
+        -  load the relative prompt 
+        -  built the full prompt : prompt + chunks 
+        - passing the full prompt to the LLM 
+        - appending the article dossier in a Knowledge_dossier 
+        - storing the Knowledge_dossier in a json file 
 
-# Prompt loading = prompt
+    """
+    Knowledge_dossier = {}
+    BASE_PATH = Path(__file__).resolve().parent.parent
 
+    # Reading the chunks  
+    file_name = f"chunks_{mission_id}_R2.json"
+    file_path = f"cache/{file_name}"
+    full_path = os.path.join(BASE_PATH,file_path)
 
+    if not Path(full_path).exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"the file does not exists in location : {full_path}"
+        )
+    
+    with open(full_path,"r") as f :
+        chunks_store = json.load(f)["chunks"]
+    
+    # loading the prompt catalogue 
+    prompt = load_prompt("prompt_Synthesis")
 
-# prompt builidng = prompt + chunks_store : full_prompt
+    # checking if the catalogue is not empty
+    if not prompt:
+        raise HTTPException(
+            detail="the prompt catalogue is empty ",
+            status_code=404
+        )
 
+    layers_prompt = prompt['layers']
 
+    # checking if the chunks are empty 
+    if not chunks_store:
+        raise HTTPException(
+            detail="the prompt catalogue is empty ",
+            status_code=404
+        )
 
-# Dossier generation per layer 
+    for key in tqdm(chunks_store.keys(),desc = "synthesising the knowledge base ..."):
+        full_prompt = {}
+        chunks_prompt = build_prompt(layers_prompt[key],chunks_store[key])
+        
+        full_prompt["system"]=prompt["system"]
+        full_prompt["prompt"]=chunks_prompt
 
-    # LLM_generate (system , fullprompt) : dict 
+        raw_dossier = llm_request(full_prompt)
 
-    # storing appending to the main_Dossier 
+        Knowledge_dossier[key] = json.loads(raw_dossier)
 
-    # storing the main_Dossier as a json file  
+    # storing the knowledge_dossier
+
+    file_path = f"cache/{mission_id}.json"
+    full_path = BASE_PATH / file_path 
+
+    with open(full_path,"w",encoding="utf-8") as f :
+        json.dump(Knowledge_dossier,f,ensure_ascii=False, indent=4)
+
+    return None
+synthesis_Knowledge("mission_1","prompt_Synthesis")

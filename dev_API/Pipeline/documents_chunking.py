@@ -32,7 +32,7 @@ def chunking_documents_store(
             total_chunks += len(doc_chunks)
         chunks_count[q] = total_chunks
 
-    logger.info("chunks per Dimension ",chunks_count=chunks_count)
+    logger.info(f"chunks per Dimension: {chunks_count}")
 
     dest_path = Path("dev_API/files/chunks_store.json")
     dest_path.parent.mkdir(parents=True, exist_ok=True)
