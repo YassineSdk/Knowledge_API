@@ -4,8 +4,9 @@ from pathlib import Path
 import json
 from  tqdm import tqdm
 from ..utils.logger_setup import logger
+from ..utils.cache_manager import save_cache
 
-def getting_documents(queries:dict):
+def getting_documents(mission_id,queries:dict):
     """
     """
 
@@ -25,11 +26,10 @@ def getting_documents(queries:dict):
         logger.info(f"search for {query_id}")
         documents_store[query_id] = search_web(search_query)
     
-    path = Path("dev_API/files/documents.json")
 
     logger.info('storing the documents')
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(documents_store, f, ensure_ascii=False, indent=4)
+    
+    save_cache(mission_id,"websearch_documents",documents_store)
     
     logger.info("task_2 : Documents gathering ended successefully")
     return documents_store

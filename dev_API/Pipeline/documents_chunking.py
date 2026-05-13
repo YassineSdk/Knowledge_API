@@ -1,4 +1,5 @@
 from ..utils.chunk_document import chunk_document 
+from ..utils.cache_manager import save_cache
 from ..utils.logger_setup import logger
 from tqdm import tqdm
 from pathlib import Path
@@ -6,6 +7,7 @@ import json
 
 
 def chunking_documents_store(
+    mission_id:str,
     documents_store:dict[str, list[dict]]
     )-> dict[str,list[dict]]:
     """
@@ -34,11 +36,7 @@ def chunking_documents_store(
 
     logger.info(f"chunks per Dimension: {chunks_count}")
 
-    dest_path = Path("dev_API/files/chunks_store.json")
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(dest_path,"w",encoding="utf-8") as f:
-        json.dump(chunks_store,f, ensure_ascii=False, indent=4)
+    save_cache(mission_id,"chunks_store",chunks_store)
 
     return chunks_store
 

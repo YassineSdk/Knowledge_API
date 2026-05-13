@@ -1,11 +1,12 @@
 from ..utils.cleaning_text import clean_raw_text
+from ..utils.cache_manager import save_cache
 import json
 from tqdm import tqdm
 from pathlib import Path 
 from ..utils.logger_setup import logger
 from datetime import datetime as dt
 
-def clean_documents(store_documents:dict):
+def clean_documents(mission_id:str,store_documents:dict):
     """
     takes each websearch query documents (results) and clean the text content 
     """
@@ -29,12 +30,8 @@ def clean_documents(store_documents:dict):
 
     
     # storing the clean documents in a json file 
-    dest_path = Path("dev_API/files/clean_docs.json")
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Saving cleaned documents")
-    with open(dest_path,"w",encoding="utf-8") as f:
-        json.dump(store_documents, f, ensure_ascii=False, indent=4)
+    save_cache(mission_id,"clean_documents",store_documents)
     
     logger.info("Document cleaning completed")
     

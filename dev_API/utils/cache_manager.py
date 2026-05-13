@@ -2,45 +2,37 @@ import json
 import time 
 from pathlib import Path 
 
-CACHE_DIR = Path("dev_API/cache")
-CACHE_TTL = 60 * 60 
+# Cache directory relative to the Knowledge_api root, not current working directory
+CACHE_DIR = Path(__file__).resolve().parent.parent / "cache"
+
+
+def get_cache_path(mission_id:str,filename)-> Path:
+    return CACHE_DIR / mission_id / f"{filename}.json"
 
 
 
-def get_cache_path(mission_id:str,Version:str)-> Path:
-    return CACHE_DIR / f"chunks_{mission_id}_{Version}.json"
+def save_cache(mission_id:str,filename:str,data:dict[str,list])-> None:
+    cache_dir = get_cache_path(mission_id,filename)
+    cache_dir.parent.mkdir(parents=True,exist_ok=True)
 
-
-def save_cache(mission_id:str,Version:str,chunks:dict[str,list])-> None:
-    CACHE_DIR.mkdir(parents=True,exist_ok=True)
-    payload = {
-        "timestamp":time.time(),
-        "chunks":chunks
-    }
-
-    with open(get_cache_path(mission_id,Version),"w",encoding="utf-8") as f :
-        json.dump(payload, f)
-
-
-def load_cache(mission_id:str,Version:str)-> dict | None :
-    path = get_cache_path(mission_id,Version)
-
-    if not path.exists():
-        raise FileNotFoundError(f"the chunks files for session {mission_id} version {Version} is not found")
+    with open(cache_dir,"w",encoding="utf-8") as f :
+        json.dump(data, f,indent=4)
     
+
+def load_cache(mission_id:str,filename:str):
+    path = get_cache_path(mission_id,filename)
+
+    if not Path(path).exists():
+        raise FileExistsError(
+            f"the {filename} does not exist in location {path}")
+
     with open(path,"r",encoding="utf-8") as f :
-        payload = json.load(f)
+        data = json.load(f)
+    return data
+
+def clear_cache(max_time):
+    """
+    """
     
-    if time.time() - payload['timestamp'] > CACHE_TTL:
-        path.unlink() # deletes the expired file 
-        return None 
-    
-    return payload["chunks"]
-
-
-
-def clear_cache(mission_id: str,version:str) -> None:
-    path = get_cache_path(mission_id)
-    if path.exists():
-        path.unlink()
+    return None
 

@@ -3,6 +3,7 @@ from ..utils.cache_manager import save_cache
 from datetime import datetime as dt
 
 def cross_encoder_rerank(
+    mission_id:str,
     chunks_store: dict[str, list],
     queries_refom: dict[str, str],
     encoder_model,
@@ -24,9 +25,9 @@ def cross_encoder_rerank(
 
 
 
-    if not isinstance(chunks_store,dict):
-        logger.error("the chunks_store must be a dict")
-        raise ValueError("the chunks_store must be a dict")
+    # if not isinstance(chunks_store,dict):
+        # logger.error("the chunks_store must be a dict")
+        # raise ValueError("the chunks_store must be a dict")
 
     if not chunks_store:
         logger.error("chunks_store dict is empty")
@@ -76,6 +77,7 @@ def cross_encoder_rerank(
         
         logger.info(f"chunks for {q} are reranked successfully")
         chunks_store[q] = ranked_chunks[:top_k]
+    save_cache(mission_id,"Ranked_chunks_R2",chunks_store)
 
     return chunks_store
 

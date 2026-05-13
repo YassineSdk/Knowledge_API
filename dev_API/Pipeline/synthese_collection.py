@@ -1,4 +1,5 @@
 from ..utils.prompt_loader import load_prompt 
+from ..utils.cache_manager import save_cache ,load_cache
 from ..utils.llm_generate import llm_request 
 from ..utils.prompt_builder import build_prompt
 from fastapi import HTTPException
@@ -8,7 +9,7 @@ import json
 from tqdm import tqdm
 
 
-def synthesis_Knowledge(mission_id:str,prompt_key:str)-> dict[str,list]:
+def synthesis_Knowledge(mission_id:str,prompt_key:str,chunks_store:dict[str,list])-> dict[str,list]:
     """
     this is the final layer of the pipeline where this function turns the Top chunks for each layer into a 
     structured articles following a prompt that defines 
@@ -26,22 +27,7 @@ def synthesis_Knowledge(mission_id:str,prompt_key:str)-> dict[str,list]:
         - storing the Knowledge_dossier in a json file 
 
     """
-    Knowledge_dossier = {}
-    BASE_PATH = Path(__file__).resolve().parent.parent
-
-    # Reading the chunks  
-    file_name = f"chunks_{mission_id}_R2.json"
-    file_path = f"cache/{file_name}"
-    full_path = os.path.join(BASE_PATH,file_path)
-
-    if not Path(full_path).exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"the file does not exists in location : {full_path}"
-        )
-    
-    with open(full_path,"r") as f :
-        chunks_store = json.load(f)["chunks"]
+    knowledge_dossier = {}
     
     # loading the prompt catalogue 
     prompt = load_prompt("prompt_Synthesis")
@@ -71,15 +57,10 @@ def synthesis_Knowledge(mission_id:str,prompt_key:str)-> dict[str,list]:
 
         raw_dossier = llm_request(full_prompt)
 
-        Knowledge_dossier[key] = json.loads(raw_dossier)
+        knowledge_dossier[key] = json.loads(raw_dossier)
 
     # storing the knowledge_dossier
 
-    file_path = f"cache/{mission_id}.json"
-    full_path = BASE_PATH / file_path 
-
-    with open(full_path,"w",encoding="utf-8") as f :
-        json.dump(Knowledge_dossier,f,ensure_ascii=False, indent=4)
+    save_cache(mission_id,"knowledge_dossier",knowledge_dossier)
 
     return None
-synthesis_Knowledge("mission_1","prompt_Synthesis")

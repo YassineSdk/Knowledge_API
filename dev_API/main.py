@@ -73,6 +73,7 @@ app = FastAPI(title='Knowledge API',
 # Pydantic automaticely validates the recieved data against the schema if missing or wrong type the FastAPI retuns an error 422
 
 class MissionTopic(BaseModel):
+    mission_id :str
     mission : str 
 
 @app.get('/')
@@ -102,7 +103,7 @@ def Knowledge_collection(mission: MissionTopic):
         raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
 
 
-    tokens_repport= full_pipeline(mission.mission,emb_model,encoder_model)
+    tokens_repport= full_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
     
     return {
         "tokens repport":tokens_repport
