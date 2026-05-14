@@ -29,7 +29,7 @@ def getting_documents(mission_id,queries:dict):
 
     logger.info('storing the documents')
     
-    save_cache(mission_id,"websearch_documents",documents_store)
+    # save_cache(mission_id,"websearch_documents",documents_store)
     
     logger.info("task_2 : Documents gathering ended successefully")
     return documents_store

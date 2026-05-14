@@ -10,13 +10,15 @@ import json
 
 # importing the toolkit 
 from  .utils.logger_setup import logger
-from  .orchestrater import full_pipeline
+from .utils.cache_manager import get_cache_path
+from  .orchestrater import initial_generation_pipeline, regeneration_pipeline
 from sentence_transformers import SentenceTransformer
 from sentence_transformers import CrossEncoder
 
 
 
 # getting the key fro .env
+load_dotenv(find_dotenv())
 API_KEY = os.getenv("API_key")
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
 
@@ -67,6 +69,7 @@ app = FastAPI(title='Knowledge API',
             )
 
 
+
 # Note: logfire instrumentation removed, using standard Python logging
 
 # defining the shape of the request body using pydantic Basemodel
@@ -81,7 +84,7 @@ def root():
     return {"health checks":"very healthy"}
 
 
-@app.post('/Knowledge_API')
+@app.post('/initail_generation')
 def Knowledge_collection(mission: MissionTopic):
 
     # auth passed
@@ -101,10 +104,67 @@ def Knowledge_collection(mission: MissionTopic):
     if encoder_model is None:
         logger.error("CrossEncoder model not loaded")
         raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
+    
+    #checking if the mission_id and mission are not empty
+    if not mission.mission or not mission.mission :
+        logger.error('mission id  or mission topic variable is empty')
+        raise HTTPException(
+            status_code=503,
+            detail='mission id  or mission topic variable is empty'
+        )
 
 
-    tokens_repport= full_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
+    knowledge_dossier = initial_generation_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
     
     return {
-        "tokens repport":tokens_repport
+        "tokens repport": knowledge_dossier
+    }
+
+@app.post('/regenate_Knowledge')
+def Knowledge_collection(mission: MissionTopic):
+
+    # auth passed
+    logger.info("access granted")
+
+    # # getting the mission topic
+    logger.info(f"Received mission: {mission}")
+
+    logger.info("regeneration process started")
+
+    
+    emb_model = getattr(app.state, "emb_model", None)
+    encoder_model = getattr(app.state, "encod_model", None)
+
+
+    if emb_model is None:
+        logger.error("Embedding model not loaded")
+        raise HTTPException(status_code=503, detail="Embedding Model not loaded.")
+
+    if encoder_model is None:
+        logger.error("CrossEncoder model not loaded")
+        raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
+    
+    #checking if the mission_id and mission are not empty
+    if not mission.mission or not mission.mission :
+        logger.error('mission id  or mission topic variable is empty')
+        raise HTTPException(
+            status_code=503,
+            detail='mission id  or mission topic variable is empty'
+        )
+    
+    # checking if chunks store for the mission_id are stored 
+    chunks_path = get_cache_path(mission.mission_id,"chunks_store")
+
+    if not Path(chunks_path).exists():
+        logger.error(f"The chunks store for mission {mission.mission_id} does not exist in location {chunks_path}")
+        raise HTTPException(
+            status_code=402,
+            detail = f"The chunks store for mission {mission.mission_id} does not exist in location {chunks_path}"
+            )
+    logger.info("the chunks store exists")
+
+    knowledge_dossier = regeneration_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
+    
+    return {
+        "knowledge_dossier": knowledge_dossier
     }

@@ -4,7 +4,7 @@ import os
 load_dotenv(find_dotenv())
 key = os.getenv('Tavily_APIKEY')
 
-def search_web(query,max_results=2):
+def search_web(query,max_results=10):
     """
     this function takes a query and search it in the web via an API called 
     tavily , a web search API that returns results 
