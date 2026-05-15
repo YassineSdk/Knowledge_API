@@ -79,9 +79,9 @@ class MissionTopic(BaseModel):
     mission_id :str
     mission : str 
 
-@app.get('/')
-def root():
-    return {"health checks":"very healthy"}
+@app.get("/")
+async def health():
+    return {"status": "ok"}
 
 
 @app.post('/initail_generation')
