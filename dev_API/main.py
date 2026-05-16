@@ -79,7 +79,7 @@ class MissionTopic(BaseModel):
     mission_id :str
     mission : str 
 
-@app.get("/")
+@app.get("/health")
 async def health():
     return {"status": "ok"}
 

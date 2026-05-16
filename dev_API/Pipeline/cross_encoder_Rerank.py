@@ -7,7 +7,7 @@ def cross_encoder_rerank(
     chunks_store: dict[str, list],
     queries_refom: dict[str, str],
     encoder_model,
-    top_k: int = 30,
+    top_k: int ,
     BATCH_SIZE: int = 16) -> dict[str, list]:
 
     """
