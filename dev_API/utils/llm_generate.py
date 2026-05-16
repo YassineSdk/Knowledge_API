@@ -1,4 +1,5 @@
 from groq import Groq
+from fastapi import HTTPException
 from dotenv import load_dotenv, find_dotenv
 import os 
 from .logger_setup import logger
@@ -6,7 +7,7 @@ import re
 
 load_dotenv(find_dotenv())
 key = os.getenv("Grok")
-def llm_request(prompt:dict)-> dict:
+def llm_request(prompt:dict,output_format:dict = None)-> dict:
     """
     this function is responsable for taking the system prompts and pass it to a LLM and returning a response
     arguments :
@@ -14,34 +15,34 @@ def llm_request(prompt:dict)-> dict:
         - key : model api key 
 
     """
-    
     client = Groq(api_key=key)
     model = "meta-llama/llama-4-scout-17b-16e-instruct" 
-    response = client.chat.completions.create(
-    model=model,
-    messages = [
-        {"role":"system", "content":prompt["system"]},
-        {"role":"user", "content":prompt["prompt"]},
-    ],
-    temperature=.5,
-    )
+    
+    kwargs = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompt["system"]},
+            {"role": "user",   "content": prompt["prompt"]},
+        ],
+        "temperature": 0.5,
+        "max_tokens": 8000,
+    }
+    # Only adding the response format if it's not None
+    if output_format is not None:
+        kwargs["response_format"] = output_format
+
+    response = client.completions.create(**kwargs)
+
+    # checking if the tokens are expired
+    finish_reason = response.choices[0].finish_reason
+    if finish_reason == "length":
+        logger.warning("Response truncated — hit max_tokens limit")
+    
     raw = response.choices[0].message.content.strip()
-    raw = re.sub(r"^```(?:json)?\s*", "", raw)
-    raw = re.sub(r"\s*```$",          "", raw)
+    # checking if the response is empty
+    if not raw or not raw.strip():
+        raise HTTPException(
+            status_code=503,
+            detail="Response is empty or only contains whitespace")
 
     return raw.strip()
-    
-    # except AuthenticationError:
-    #     logger.error("Invalid Groq API key.")
-    #     raise RuntimeError("Invalid Groq API key.")
-
-    # except RateLimitError:
-    #     logger.error("Groq rate limit hit, slow down requests.")
-    #     raise RuntimeError("Groq rate limit hit, slow down requests.")
-
-    # except BadRequestError as e:
-    #     raise RuntimeError(f"Bad request to Groq: {e}")
-        
-    # except GroqError as e:
-    #     raise RuntimeError(f"Groq API error: {e}")
-

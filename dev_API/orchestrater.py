@@ -79,12 +79,12 @@ def regeneration_pipeline(mission_id,mission,emb_model,encoder_model)-> dict[str
     queries_refom = reformulate_queries(mission,queries,prompt_key="queries_reformulation")
 
     # #--Chunks first level Ranking 
-    chunks_store_R1 = rank_docs_chunks(mission_id,chunks_store,emb_model,queries_refom,top_k=15)
+    chunks_store_R1 = rank_docs_chunks(mission_id,chunks_store,emb_model,queries_refom,top_k=150)
 
     #chunks_store_R1 = load_cache(mission_id,"chunks_ranked_R1")
 
     # #--Reranking the chunks using the  cross_encoder
-    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_store_R1,queries_refom,encoder_model)
+    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_store_R1,queries_refom,encoder_model,top_k=50)
 
     # Token evaluation 
     tokens_report = evaluation_tokens(chunks_store_R2)
