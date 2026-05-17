@@ -31,7 +31,7 @@ def llm_request(prompt:dict,output_format:dict = None)-> dict:
     if output_format is not None:
         kwargs["response_format"] = output_format
 
-    response = client.completions.create(**kwargs)
+    response = client.chat.completions.create(**kwargs)
 
     # checking if the tokens are expired
     finish_reason = response.choices[0].finish_reason

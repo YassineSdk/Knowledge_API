@@ -98,7 +98,7 @@ def synthesis_Knowledge(mission_id:str,prompt_key:str,chunks_store:dict[str,list
         raw_dossier = llm_request(full_prompt,DOSSIER_SCHEMA)
         print(raw_dossier[:200])
 
-        knowledge_dossier[key] = raw_dossier
+        knowledge_dossier[key] = json.loads(raw_dossier)
 
     # storing the knowledge_dossier
 
