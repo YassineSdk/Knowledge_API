@@ -29,10 +29,6 @@ def clean_documents(mission_id:str,store_documents:dict):
             doc['raw_content'] = clean_raw_text(doc.get('raw_content', ""))
 
     
-    # storing the clean documents in a json file 
-
-    save_cache(mission_id,"clean_documents",store_documents)
-    
     logger.info("Document cleaning completed")
     
     return store_documents

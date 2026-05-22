@@ -7,7 +7,9 @@ import re
 
 load_dotenv(find_dotenv())
 key = os.getenv("Grok")
-def llm_request(prompt:dict,output_format:dict = None)-> dict:
+client = Groq(api_key=key)
+MODEL = "meta-llama/llama-4-scout-17b-16e-instruct" 
+def llm_request(prompt:dict,output_format:dict = None,model=None)-> dict:
     """
     this function is responsable for taking the system prompts and pass it to a LLM and returning a response
     arguments :
@@ -15,11 +17,9 @@ def llm_request(prompt:dict,output_format:dict = None)-> dict:
         - key : model api key 
 
     """
-    client = Groq(api_key=key)
-    model = "meta-llama/llama-4-scout-17b-16e-instruct" 
-    
+    model = MODEL if model == None else model
     kwargs = {
-        "model": model,
+        "model":model ,
         "messages": [
             {"role": "system", "content": prompt["system"]},
             {"role": "user",   "content": prompt["prompt"]},

@@ -16,7 +16,7 @@ def save_cache(mission_id:str,filename:str,data:dict[str,list])-> None:
     cache_dir.parent.mkdir(parents=True,exist_ok=True)
 
     with open(cache_dir,"w",encoding="utf-8") as f :
-        json.dump(data, f,indent=4)
+        json.dump(data, f,indent=4,ensure_ascii=False)
     
 
 def load_cache(mission_id:str,filename:str):

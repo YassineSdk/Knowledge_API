@@ -1,4 +1,4 @@
-from fastapi import FastAPI , Security,HTTPException, status, Depends
+from fastapi import FastAPI , Security,HTTPException, status, Depends,Query
 from fastapi.security import APIKeyHeader
 from contextlib import asynccontextmanager
 from pydantic import BaseModel 
@@ -10,7 +10,7 @@ import json
 
 # importing the toolkit 
 from  .utils.logger_setup import logger
-from .utils.cache_manager import get_cache_path
+from .utils.cache_manager import get_cache_path,load_cache
 from  .orchestrater import initial_generation_pipeline, regeneration_pipeline
 from sentence_transformers import SentenceTransformer
 from sentence_transformers import CrossEncoder
@@ -85,13 +85,14 @@ async def health():
 
 
 @app.post('/initail_generation')
-def Knowledge_collection(mission: MissionTopic):
+def Knowledge_collection(mission_id:str,
+                        mission_topic:str):
 
     # auth passed
     logger.info("access granted")
 
     # # getting the mission topic
-    logger.info(f"Received mission: {mission}")
+    logger.info(f"Received mission: mission_id :{mission_id} - mission topic :{mission_topic}")
 
     emb_model = getattr(app.state, "emb_model", None)
     encoder_model = getattr(app.state, "encod_model", None)
@@ -106,35 +107,33 @@ def Knowledge_collection(mission: MissionTopic):
         raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
     
     #checking if the mission_id and mission are not empty
-    if not mission.mission or not mission.mission :
+    if not mission_id or not mission_topic :
         logger.error('mission id  or mission topic variable is empty')
         raise HTTPException(
             status_code=503,
             detail='mission id  or mission topic variable is empty'
         )
 
-
-    knowledge_dossier = initial_generation_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
+    knowledge_dossier = initial_generation_pipeline(mission_id,mission_topic,emb_model,encoder_model)
     
     return {
-        "tokens repport": knowledge_dossier
+        "knowledge dossier": knowledge_dossier
     }
 
 @app.post('/regenate_Knowledge')
-def Knowledge_collection(mission: MissionTopic):
+def Knowledge_collection(mission_id:str,
+                        mission_topic:str):
 
     # auth passed
     logger.info("access granted")
 
     # # getting the mission topic
-    logger.info(f"Received mission: {mission}")
-
+    logger.info(f"Received mission: mission_id :{mission_id} - mission topic :{mission_topic}")
+    
     logger.info("regeneration process started")
-
     
     emb_model = getattr(app.state, "emb_model", None)
     encoder_model = getattr(app.state, "encod_model", None)
-
 
     if emb_model is None:
         logger.error("Embedding model not loaded")
@@ -145,26 +144,45 @@ def Knowledge_collection(mission: MissionTopic):
         raise HTTPException(status_code=503, detail="CrossEncoder Model not loaded.")
     
     #checking if the mission_id and mission are not empty
-    if not mission.mission or not mission.mission :
+    if not mission_topic or not mission_id :
         logger.error('mission id  or mission topic variable is empty')
         raise HTTPException(
             status_code=503,
-            detail='mission id  or mission topic variable is empty'
-        )
+            detail='mission id  or mission topic variable is empty')
     
     # checking if chunks store for the mission_id are stored 
-    chunks_path = get_cache_path(mission.mission_id,"chunks_store")
+    chunks_path = get_cache_path(mission_id,"chunks_store")
 
     if not Path(chunks_path).exists():
-        logger.error(f"The chunks store for mission {mission.mission_id} does not exist in location {chunks_path}")
+        logger.error(f"The chunks store for mission {mission_id} does not exist in location {chunks_path}")
         raise HTTPException(
             status_code=402,
-            detail = f"The chunks store for mission {mission.mission_id} does not exist in location {chunks_path}"
+            detail = f"The chunks store for mission {mission_id} does not exist in location {chunks_path}"
             )
     logger.info("the chunks store exists")
 
-    knowledge_dossier = regeneration_pipeline(mission.mission_id,mission.mission,emb_model,encoder_model)
+    knowledge_dossier = regeneration_pipeline(mission_id,mission_topic,emb_model,encoder_model)
     
     return {
         "knowledge_dossier": knowledge_dossier
-    }
+    } 
+
+
+
+@app.get("/get_Knowledge_dossier")
+def get_Knowledge_dossier(mission_id:str):
+
+    K_dossier_path = get_cache_path(mission_id,"knowledge_dossier")
+
+    if not Path(K_dossier_path).exists():
+        logger.error(f"""The knowledge dossier for Mission id {mission_id} does 
+            not exist run the intail generation endpoint""")
+        raise HTTPException(
+            status_code=402,
+            detail=f"""The knowledge dossier for Mission id {mission_id} does 
+            not exist run the intail generation endpoint"""
+        )
+
+    knowledge_dossier = load_cache(mission_id,"knowledge_dossier")
+
+    return {"knowledge_dossier": knowledge_dossier}

@@ -22,8 +22,8 @@ system: |
   global_rules:
     - Do not return any ``` or "json" or \n \t characters
     - Always generate between 10 and 15 articles per layer
-    - Each article content must be between 300 and 600 words — no exceptions
-    - Articles below 300 words must be expanded with deeper analysis, examples, and sub-sections
+    - Each article content must be between 500 and 600 words — no exceptions
+    - Articles below 500 words must be expanded with deeper analysis, examples, and sub-sections
     - Articles must not exceed 600 words — trim redundancy if needed
     - The generated article {Title | Content | summary} must be fully in French — no other language is accepted
     - Return STRICT JSON only
@@ -66,7 +66,7 @@ system: |
         {
           "article_id": "string",
           "title": "string",
-          "content": "markdown string (300–600 words)",
+          "content": "markdown string (500–600 words)",
           "citations": [
             "url_1",
             "url_2"
@@ -105,7 +105,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each concept in depth with sub-sections and examples
       - Use educational tone
       - Use dynamic article titles
@@ -145,7 +145,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each cause with detailed analysis, sub-mechanisms, and concrete examples
       - Focus on causal relationships
       - Highlight recurring weaknesses
@@ -185,7 +185,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each control area with implementation details, audit procedures, and maturity indicators
       - Focus on practical auditability
       - Explain verification logic clearly
@@ -226,7 +226,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each regulatory topic with obligations, scope, sanctions, and audit implications
       - Use precise regulatory language
       - Reference named frameworks and authorities
@@ -262,7 +262,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each practice with implementation steps, maturity indicators, and concrete examples
       - Focus on actionable practices
       - Explain implementation approaches
@@ -299,7 +299,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each model or framework with scoring logic, dimensions, and interpretation guidance
       - Focus on evaluation frameworks
       - Explain maturity dimensions clearly
@@ -339,7 +339,7 @@ layers:
 
     generation_rules:
       - Generate between 10 and 15 articles
-      - Each article must be between 300 and 600 words
+      - Each article must be between 500 and 600 words
       - Develop each incident with full chronology, root cause analysis, consequences, and lessons learned
       - Focus on real documented incidents
       - Preserve chronology and causality

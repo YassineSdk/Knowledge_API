@@ -38,18 +38,18 @@ def initial_generation_pipeline(mission_id,mission,emb_model,encoder_model)-> di
     queries_refom = reformulate_queries(mission,queries,prompt_key="queries_reformulation")
 
     # #--Chunks first level Ranking 
-    chunks_store_R1 = rank_docs_chunks(mission_id,chunks_store,emb_model,queries_refom,top_k=150)
+    chunks_store_R1 = rank_docs_chunks(mission_id,chunks_store,emb_model,queries_refom,top_k=200)
 
     #chunks_store_R1 = load_cache(mission_id,"chunks_ranked_R1")
 
     # #--Reranking the chunks using the  cross_encoder
-    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_store_R1,queries_refom,encoder_model,top_k=80)
+    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_store_R1,queries_refom,encoder_model,top_k=50)
 
     # Token evaluation 
     tokens_report = evaluation_tokens(chunks_store_R2)
 
     # synthetising the Knowledge
-    knowledge_dossier = synthesis_Knowledge(mission_id,"prompt_Synthesis",chunks_store_R1)
+    knowledge_dossier = synthesis_Knowledge(mission_id,"prompt_Synthesis",chunks_store_R2)
 
     return knowledge_dossier
 
@@ -70,7 +70,7 @@ def regeneration_pipeline(mission_id,mission,emb_model,encoder_model)-> dict[str
     # process
 
     # loading the chunks 
-    chunks_store =  load_cache(mission_id,"chunks_store")
+    chunks_ranked_R1 =  load_cache(mission_id,"chunks_ranked_R1")
 
     # Queries expansion
     queries = expand_queries(mission,"query_expansion")
@@ -78,22 +78,15 @@ def regeneration_pipeline(mission_id,mission,emb_model,encoder_model)-> dict[str
     # #--Queries reformation
     queries_refom = reformulate_queries(mission,queries,prompt_key="queries_reformulation")
 
-    # #--Chunks first level Ranking 
-    chunks_store_R1 = rank_docs_chunks(mission_id,chunks_store,emb_model,queries_refom,top_k=150)
-
-    #chunks_store_R1 = load_cache(mission_id,"chunks_ranked_R1")
-
     # #--Reranking the chunks using the  cross_encoder
-    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_store_R1,queries_refom,encoder_model,top_k=50)
+    chunks_store_R2 = cross_encoder_rerank(mission_id,chunks_ranked_R1,queries_refom,encoder_model,top_k=30)
 
     # Token evaluation 
     tokens_report = evaluation_tokens(chunks_store_R2)
 
     # synthetising the Knowledge
-    knowledge_dossier = synthesis_Knowledge(mission_id,"prompt_Synthesis",chunks_store_R1)
+    knowledge_dossier = synthesis_Knowledge(mission_id,"prompt_Synthesis",chunks_store_R2)
     
     return knowledge_dossier
-
-
 
 
