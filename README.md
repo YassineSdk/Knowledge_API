@@ -137,6 +137,9 @@ Response:
 
 
 ## 8. Initial Document/Knowledge Generation
+
+<img width="6376" height="6134" alt="image" src="https://github.com/user-attachments/assets/8905daee-510a-41c1-9996-8f182b68b009" />
+
 ### Create knowledge dossier (full pipeline)
 ```http
 POST /initail_generation
@@ -184,8 +187,10 @@ Runs the full pipeline:
 > Note: the exact dimension keys depend on the synthesis prompt template.
 
 
-## 9. Document Processing Pipeline (Regeneration)
+## 9. dossier Regeneration Pipeline
 ### Regenerate dossier using cached retrieval artifacts
+<img width="7040" height="5528" alt="image" src="https://github.com/user-attachments/assets/2d5534b5-7f80-4334-8977-2ae8ecc4cbb5" />
+
 ```http
 POST /regenate_Knowledge
 ```
@@ -229,6 +234,7 @@ Required: `X-API-Key` header.
 ```http
 GET /get_Knowledge_dossier
 ```
+<img width="6600" height="3334" alt="image" src="https://github.com/user-attachments/assets/829494a0-0568-49c4-9aaf-ea0fe8fd37bc" />
 
 #### Request
 Query parameters:
