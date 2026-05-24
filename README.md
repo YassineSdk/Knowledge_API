@@ -203,6 +203,7 @@ Required: `X-API-Key` header.
 - Runs query expansion + query reformation again.
 - Runs cross-encoder reranking (R2 top_k=30).
 - Runs synthesis again.
+- store the new knowledge dossier in the Mission_dir
 
 #### Response
 ```json
@@ -378,10 +379,10 @@ Expected variables (from code):
 
 ## 20. Example Workflows
 
-### Ingest → Search → Chat (mission dossier)
+### Ingest → Search → fetch (mission dossier)
 1. `POST /initail_generation?mission_id=...&mission_topic=...`
-2. Poll/store the returned `knowledge dossier`
-3. Optionally call `GET /get_Knowledge_dossier?mission_id=...`
+2. Poll/store the returned `Mission_id`
+3.  call `GET /get_Knowledge_dossier?mission_id=...` to get the Mission id 
 
 ### Regenerate the knowledge dossier
 1. `POST /regenate_Knowledge?mission_id=...&mission_topic=...`
