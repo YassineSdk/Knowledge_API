@@ -234,7 +234,9 @@ Required: `X-API-Key` header.
 ```http
 GET /get_Knowledge_dossier
 ```
-<img width="6600" height="3334" alt="image" src="https://github.com/user-attachments/assets/829494a0-0568-49c4-9aaf-ea0fe8fd37bc" />
+<img width="6944" height="3328" alt="image" src="https://github.com/user-attachments/assets/e1633f67-b7ad-43b8-9596-52916b5a538b" />
+
+
 
 #### Request
 Query parameters:
